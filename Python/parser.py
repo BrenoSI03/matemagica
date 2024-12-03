@@ -7,20 +7,23 @@ precedence = ()
 # Gramática
 def p_programa(p):
     'programa : cmds'
-    # Adiciona a estrutura básica de um programa em C
     cmds = '\n'.join(p[1])
     p[0] = f"#include <stdio.h>\n\nint main() {{\n{cmds}\n    return 0;\n}}"
 
 def p_cmds(p):
     '''cmds : cmd cmds
             | cmd'''
-    p[0] = [p[1]] + (p[2] if len(p) > 2 else [])
+    if len(p) == 3:
+        p[0] = [p[1]] + p[2]
+    else:
+        p[0] = [p[1]]
 
 def p_cmd(p):
     '''cmd : atribuicao
            | impressao
            | operacao
-           | repeticao'''
+           | repeticao
+           | se'''
     p[0] = p[1]
 
 def p_atribuicao(p):
@@ -37,7 +40,7 @@ def p_operacao(p):
                 | SOME VAR COM NUM PONTO
                 | SOME NUM COM VAR PONTO
                 | SOME NUM COM NUM PONTO'''
-    p[0] = f"    {p[2]} += {p[4]};"
+    p[0] = f"{p[2]} + {p[4]}"  # Retorna a expressão para uso em impressao
 
 def p_multiplique(p):
     '''cmd : MULTIPLIQUE VAR POR VAR PONTO
@@ -46,48 +49,35 @@ def p_multiplique(p):
            | MULTIPLIQUE NUM POR NUM PONTO'''
     p[0] = f"    {p[2]} *= {p[4]};"
 
-
 def p_repeticao(p):
     'repeticao : REPITA NUM VEZES DOIS_PONTOS cmds FIM'
-    cmds = '\n'.join(p[5])
-    p[0] = f"    for (int _ = 0; _ < {p[2]}; _++) {{\n{cmds}\n    }}"
+    cmds = '\n    '.join(p[6])
+    p[0] = f"    for (int i = 0; i < {p[2]}; i++) {{\n    {cmds}\n    }}"
 
-
-def p_se_entao(p):
-    '''cmd : SE VAR ENTAO cmds FIM
-           | SE VAR ENTAO cmds FIM PONTO'''
-    if len(p) == 6:  # SE VAR ENTAO cmds FIM
-        cmds = '\n    '.join(p[4])
-        p[0] = f"    if ({p[2]}) {{\n    {cmds}\n    }}"
-    else:  # SE VAR ENTAO cmds FIM .
-        cmds = '\n    '.join(p[4])
-        p[0] = f"    if ({p[2]}) {{\n    {cmds}\n    }}"
-
-
-def p_se_entao_ponto(p):
-    '''cmd : SE VAR ENTAO cmd FIM PONTO
-           | SE VAR ENTAO cmd SENAO cmd FIM PONTO'''
-    if len(p) == 7:  # SE VAR ENTAO cmd FIM .
-        p[0] = f"    if ({p[2]}) {{\n        {p[4]}\n    }}"
-    else:  # SE VAR ENTAO cmd SENAO cmd FIM .
-        p[0] = f"    if ({p[2]}) {{\n        {p[4]}\n    }} else {{\n        {p[6]}\n    }}"
-
-
-def p_se_entao_senao(p):
-    '''cmd : SE VAR ENTAO cmds SENAO cmds FIM
-           | SE VAR ENTAO cmds SENAO cmds FIM PONTO'''
-    if len(p) == 8:  # SE VAR ENTAO cmds SENAO cmds FIM
+def p_se(p):
+    '''se : SE VAR ENTAO cmds FIM
+          | SE VAR ENTAO cmds FIM PONTO
+          | SE NUM ENTAO cmds FIM
+          | SE NUM ENTAO cmds FIM PONTO
+          | SE VAR ENTAO cmds SENAO cmds FIM
+          | SE VAR ENTAO cmds SENAO cmds FIM PONTO
+          | SE NUM ENTAO cmds SENAO cmds FIM
+          | SE NUM ENTAO cmds SENAO cmds FIM PONTO'''
+    
+    # Verifica se há uma cláusula SENAO
+    if 'SENAO' in p.slice:
         cmds_entao = '\n    '.join(p[4])
         cmds_senao = '\n    '.join(p[6])
         p[0] = f"    if ({p[2]}) {{\n    {cmds_entao}\n    }} else {{\n    {cmds_senao}\n    }}"
-    else:  # SE VAR ENTAO cmds SENAO cmds FIM .
-        cmds_entao = '\n    '.join(p[4])
-        cmds_senao = '\n    '.join(p[6])
-        p[0] = f"    if ({p[2]}) {{\n    {cmds_entao}\n    }} else {{\n    {cmds_senao}\n    }}"
-
+    else:
+        cmds = '\n    '.join(p[4])
+        p[0] = f"    if ({p[2]}) {{\n    {cmds}\n    }}"
 
 def p_error(p):
-    print("Erro de sintaxe!")
+    if p:
+        print(f"Erro de sintaxe na linha {p.lineno}: inesperado '{p.value}'")
+    else:
+        print("Erro de sintaxe: fim de arquivo inesperado")
 
 # Construir o parser
 parser = yacc.yacc(debug=True)

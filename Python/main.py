@@ -2,12 +2,13 @@ from lexer import lexer
 from parser import parser
 
 # Programa de entrada
-codigo_matemagica = """
+codigo_matemagica = \
+"""
 FACA num SER 0.
 SE num ENTAO
 MOSTRE num .
 SENAO
-MOSTRE 10.
+MOSTRE num.
 FIM
 """
 
