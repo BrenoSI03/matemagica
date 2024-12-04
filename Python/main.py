@@ -5,11 +5,15 @@ from parser import parser
 codigo_matemagica = \
 """
 FACA n SER 10.
-FACA num SER 0.
-SE num ENTAO
-MOSTRE num .
+FACA m SER 5.
+FACA p SER 0.
+SE n ENTAO
+MOSTRE n .
+SE m ENTAO
+MOSTRE m .
 SENAO
-MOSTRE 10.
+MOSTRE 0 .
+FIM
 FIM
 """
 
