@@ -32,6 +32,7 @@ def p_atribuicao(p):
 
 def p_impressao(p):
     '''impressao : MOSTRE VAR PONTO
+                 | MOSTRE NUM PONTO
                  | MOSTRE operacao PONTO'''
     p[0] = f"    printf(\"%d\\n\", {p[2]});"
 
@@ -54,24 +55,25 @@ def p_repeticao(p):
     cmds = '\n    '.join(p[6])
     p[0] = f"    for (int i = 0; i < {p[2]}; i++) {{\n    {cmds}\n    }}"
 
+def p_expressao(p):
+    '''expressao : VAR
+                | NUM'''
+    p[0] = p[1]
+
 def p_se(p):
-    '''se : SE VAR ENTAO cmds FIM
-          | SE VAR ENTAO cmds FIM PONTO
-          | SE NUM ENTAO cmds FIM
-          | SE NUM ENTAO cmds FIM PONTO
-          | SE VAR ENTAO cmds SENAO cmds FIM
-          | SE VAR ENTAO cmds SENAO cmds FIM PONTO
-          | SE NUM ENTAO cmds SENAO cmds FIM
-          | SE NUM ENTAO cmds SENAO cmds FIM PONTO'''
+    '''se : SE expressao ENTAO cmds FIM
+          | SE expressao ENTAO cmds SENAO cmds FIM
+          | SE expressao ENTAO cmds FIM PONTO
+          | SE expressao ENTAO cmds SENAO cmds FIM PONTO'''
     
     # Verifica se há uma cláusula SENAO
-    if 'SENAO' in p.slice:
+    if 'SENAO' in p:
         cmds_entao = '\n    '.join(p[4])
         cmds_senao = '\n    '.join(p[6])
         p[0] = f"    if ({p[2]}) {{\n    {cmds_entao}\n    }} else {{\n    {cmds_senao}\n    }}"
     else:
         cmds = '\n    '.join(p[4])
-        p[0] = f"    if ({p[2]}) {{\n    {cmds}\n    }}"
+        p[0] = f"    if ({p[2]}) {{\n{cmds}\n    }}"
 
 def p_error(p):
     if p:

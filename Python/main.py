@@ -4,11 +4,12 @@ from parser import parser
 # Programa de entrada
 codigo_matemagica = \
 """
+FACA n SER 10.
 FACA num SER 0.
 SE num ENTAO
 MOSTRE num .
 SENAO
-MOSTRE num.
+MOSTRE 10.
 FIM
 """
 
