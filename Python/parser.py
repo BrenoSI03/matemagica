@@ -1,11 +1,12 @@
 import ply.yacc as yacc
 from lexer import tokens
 
-# Pilha para rastrear o nível de indentação
-indent_stack = [1]  # Inicia no nível 1 dentro da função main
-
-def get_indent():
-    return '    ' * indent_stack[-1]  # 4 espaços por nível
+# Regras de precedência
+precedence = (
+    ('left', 'EQ', 'NEQ'),          # Igualdade e desigualdade
+    ('left', 'GTE', 'LTE', 'GT', 'LT'),  # Comparações
+    # Adicione precedência para outros operadores, se necessário
+)
 
 # Gramática
 def p_programa(p):
@@ -26,91 +27,81 @@ def p_cmd(p):
            | impressao
            | operacao
            | repeticao
+           | multiplique
+           | divisao
+           | subtracao
            | se'''
     p[0] = p[1]
 
 def p_atribuicao(p):
-    'atribuicao : FACA VAR SER NUM PONTO'
-    indent = get_indent()
-    p[0] = f"{indent}int {p[2]} = {p[4]};"
+    '''atribuicao : FACA VAR SER NUM PONTO
+                  | FACA VAR SER VAR PONTO'''
+    p[0] = f"    int {p[2]} = {p[4]};"
 
 def p_impressao(p):
     '''impressao : MOSTRE VAR PONTO
-                 | MOSTRE operacao PONTO
                  | MOSTRE NUM PONTO'''
-    indent = get_indent()
-    p[0] = f"{indent}printf(\"%d\\n\", {p[2]});"
+    p[0] = f"    printf(\"%d\\n\", {p[2]});"
 
 def p_operacao(p):
     '''operacao : SOME VAR COM VAR PONTO
-                | SOME VAR COM NUM PONTO
-                | SOME NUM COM VAR PONTO
-                | SOME NUM COM NUM PONTO'''
-    # Retorna a expressão para uso em impressao
-    p[0] = f"{p[2]} + {p[4]}"
+                | SOME VAR COM NUM PONTO'''
+    p[0] = f"    {p[2]} += {p[4]};"  # Retorna a expressão para uso em impressao
 
 def p_multiplique(p):
-    '''cmd : MULTIPLIQUE VAR POR VAR PONTO
-           | MULTIPLIQUE VAR POR NUM PONTO
-           | MULTIPLIQUE NUM POR VAR PONTO
-           | MULTIPLIQUE NUM POR NUM PONTO'''
-    indent = get_indent()
-    p[0] = f"{indent}{p[2]} *= {p[4]};"
+    '''multiplique : MULTIPLIQUE VAR POR VAR PONTO
+           | MULTIPLIQUE VAR POR NUM PONTO'''
+    p[0] = f"    {p[2]} *= {p[4]};"
+
+def p_divisao(p):
+    '''divisao : DIVIDA VAR POR NUM PONTO
+           | DIVIDA VAR POR VAR PONTO'''
+    p[0] = f"    {p[2]} /= {p[4]};"
+
+def p_subtracao(p):
+    '''subtracao : SUBTRAIA VAR POR NUM PONTO
+           | SUBTRAIA VAR POR VAR PONTO'''
+    p[0] = f"    {p[2]} -= {p[4]};"
 
 def p_repeticao(p):
     'repeticao : REPITA NUM VEZES DOIS_PONTOS cmds FIM'
-    indent = get_indent()
-    loop_start = f"{indent}for (int i = 0; i < {p[2]}; i++) {{"
-    
-    indent_stack.append(indent_stack[-1] + 1)  # Incrementa para o bloco interno
-    cmds = '\n'.join(p[5])
-    indent_stack.pop()  # Decrementa após o bloco
-    
-    loop_end = f"{indent}}}"
-    p[0] = f"{loop_start}\n{cmds}\n{loop_end}"
+    cmds = '\n    '.join(p[6])
+    p[0] = f"    for (int i = 0; i < {p[2]}; i++) {{\n    {cmds}\n    }}"
 
-def p_expressao(p):
+def p_expressao_binaria(p):
+    '''expressao : expressao EQ expressao
+                | expressao NEQ expressao
+                | expressao GTE expressao
+                | expressao LTE expressao
+                | expressao GT expressao
+                | expressao LT expressao'''
+    p[0] = f"{p[1]} {p[2]} {p[3]}"
+
+def p_expressao_basica(p):
     '''expressao : VAR
                 | NUM'''
-    p[0] = p[1]
+    p[0] = str(p[1])
 
 def p_se(p):
     '''se : SE expressao ENTAO cmds FIM
           | SE expressao ENTAO cmds SENAO cmds FIM
           | SE expressao ENTAO cmds FIM PONTO
           | SE expressao ENTAO cmds SENAO cmds FIM PONTO'''
-    indent = get_indent()
     
-    if len(p) in [6, 7] and p.slice[-1].type != 'SENAO':
+    # Determinar se a cláusula SENAO está presente
+    if len(p) == 6 or (len(p) == 7 and p.slice[-1].type != 'SENAO'):
         # Forma sem SENAO
-        code = f"{indent}if ({p[2]}) {{\n"
-        indent_stack.append(indent_stack[-1] + 1)  # Incrementa o nível de indentação
-        cmds_entao = '\n'.join(p[4])
-        code += f"{cmds_entao}\n"
-        indent_stack.pop()  # Decrementa o nível de indentação
-        code += f"{indent}}}"
+        cmds_entao = '\n    '.join(p[4])
+        p[0] = f"    if ({p[2]}) {{\n    {cmds_entao}\n    }}"
         if len(p) == 7 and p.slice[-1].type == 'PONTO':
-            code += "."
-    elif 'SENAO' in p:
-        # Forma com SENAO
-        code = f"{indent}if ({p[2]}) {{\n"
-        indent_stack.append(indent_stack[-1] + 1)  # Incrementa o nível de indentação
-        cmds_entao = '\n'.join(p[4])
-        code += f"{cmds_entao}\n"
-        indent_stack.pop()  # Decrementa o nível de indentação
-        code += f"{indent}}} else {{\n"
-        indent_stack.append(indent_stack[-1] + 1)  # Incrementa o nível de indentação
-        cmds_senao = '\n'.join(p[6])
-        code += f"{cmds_senao}\n"
-        indent_stack.pop()  # Decrementa o nível de indentação
-        code += f"{indent}}}"
-        if len(p) == 8 and p.slice[-1].type == 'PONTO':
-            code += "."
+            p[0] += "."
     else:
-        # Produções não cobertas
-        code = ""
-    
-    p[0] = code
+        # Forma com SENAO
+        cmds_entao = '\n    '.join(p[4])
+        cmds_senao = '\n    '.join(p[6])
+        p[0] = f"    if ({p[2]}) {{\n    {cmds_entao}\n    }} else {{\n    {cmds_senao}\n    }}"
+        if len(p) == 8 and p.slice[-1].type == 'PONTO':
+            p[0] += "."
 
 def p_error(p):
     if p:

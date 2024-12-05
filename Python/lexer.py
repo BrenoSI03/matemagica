@@ -15,14 +15,25 @@ reserved = {
     'SENAO': 'SENAO',
     'MULTIPLIQUE': 'MULTIPLIQUE',
     'POR': 'POR',
+    'DIVIDA': 'DIVIDA',
+    'SUBTRAIA': 'SUBTRAIA',
 }
 
 # Lista de tokens
 tokens = [
-    'VAR', 'NUM', 'PONTO', 'DOIS_PONTOS'
+    'VAR', 'NUM', 'PONTO', 'DOIS_PONTOS',
+    'EQ', 'NEQ', 'GTE', 'LTE', 'GT', 'LT',  # Novos tokens
 ] + list(reserved.values())
 
-# Definição de tokens específicos
+# Definição de tokens específicos para operadores de comparação
+t_GTE = r'>='
+t_LTE = r'<='
+t_EQ = r'=='
+t_NEQ = r'!='
+t_GT = r'>'
+t_LT = r'<'
+
+# Regras para outros tokens (já existentes)
 t_PONTO = r'\.'
 t_DOIS_PONTOS = r':'
 
