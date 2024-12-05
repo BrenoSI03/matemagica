@@ -40,10 +40,10 @@ def p_atribuicao(p):
                   | FACA VAR SER expressao PONTO'''  # Adicione esta linha
     if len(p) == 6:
         # Atribuição com número ou variável
-        p[0] = f"    {p[2]} = {p[4]};"
+        p[0] = f"    int {p[2]} = {p[4]};"
     else:
         # Atribuição com expressão
-        p[0] = f"    {p[2]} = {p[4]};"
+        p[0] = f"    int {p[2]} = {p[4]};"
 
 def p_impressao(p):
     '''impressao : MOSTRE VAR PONTO
