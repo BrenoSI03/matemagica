@@ -30,13 +30,20 @@ def p_cmd(p):
            | multiplique
            | divisao
            | subtracao
-           | se'''
+           | se
+           | repeticao_enquanto'''  # Adicione esta linha
     p[0] = p[1]
 
 def p_atribuicao(p):
     '''atribuicao : FACA VAR SER NUM PONTO
-                  | FACA VAR SER VAR PONTO'''
-    p[0] = f"    int {p[2]} = {p[4]};"
+                  | FACA VAR SER VAR PONTO
+                  | FACA VAR SER expressao PONTO'''  # Adicione esta linha
+    if len(p) == 6:
+        # Atribuição com número ou variável
+        p[0] = f"    {p[2]} = {p[4]};"
+    else:
+        # Atribuição com expressão
+        p[0] = f"    {p[2]} = {p[4]};"
 
 def p_impressao(p):
     '''impressao : MOSTRE VAR PONTO
@@ -46,7 +53,7 @@ def p_impressao(p):
 def p_operacao(p):
     '''operacao : SOME VAR COM VAR PONTO
                 | SOME VAR COM NUM PONTO'''
-    p[0] = f"    {p[2]} += {p[4]};"  # Retorna a expressão para uso em impressao
+    p[0] = f"    {p[2]} += {p[4]};"
 
 def p_multiplique(p):
     '''multiplique : MULTIPLIQUE VAR POR VAR PONTO
@@ -67,6 +74,11 @@ def p_repeticao(p):
     'repeticao : REPITA NUM VEZES DOIS_PONTOS cmds FIM'
     cmds = '\n    '.join(p[6])
     p[0] = f"    for (int i = 0; i < {p[2]}; i++) {{\n    {cmds}\n    }}"
+
+def p_repeticao_enquanto(p):
+    'repeticao_enquanto : REPITA ENQUANTO expressao DOIS_PONTOS cmds FIM'
+    cmds = '\n    '.join(p[5])
+    p[0] = f"    while ({p[3]}) {{\n    {cmds}\n    }}"
 
 def p_expressao_binaria(p):
     '''expressao : expressao EQ expressao

@@ -4,16 +4,10 @@ from parser import parser
 # Programa de entrada
 codigo_matemagica = \
 """
-FACA a SER 10.
-FACA b SER 20.
-FACA c SER 0.
-SE a < b ENTAO
-    MOSTRE a .
-    SE b >= 15 ENTAO
-        MOSTRE b .
-    SENAO
-        MOSTRE c .
-    FIM
+FACA d SER 0.
+REPITA ENQUANTO d < 100:
+    MOSTRE d.
+    FACA d SER 5.
 FIM
 """
 
