@@ -1,5 +1,5 @@
-FACA resultado SER 1.
-REPITA 3 VEZES:
-MULTIPLIQUE resultado POR 2.
+FACA x SER 0.
+REPITA ENQUANTO x < 10:
+    MOSTRE x.
+    SOME x COM 1.
 FIM
-MOSTRE resultado.

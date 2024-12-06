@@ -21,7 +21,8 @@ reserved = {
 
 tokens = [
     'VAR', 'NUM', 'PONTO', 'DOIS_PONTOS',
-    'PLUS', 'MINUS', 'TIMES', 'DIVIDE'
+    'PLUS', 'MINUS', 'TIMES', 'DIVIDE',
+    'GT', 'LT', 'EQ', 'GTE', 'LTE'
 ] + list(reserved.values())
 
 t_PONTO = r'\.'
@@ -30,6 +31,11 @@ t_PLUS = r'\+'
 t_MINUS = r'-'
 t_TIMES = r'\*'
 t_DIVIDE = r'/'
+t_GT = r'>'
+t_LT = r'<'
+t_EQ = r'=='
+t_GTE = r'>='
+t_LTE = r'<='
 
 def t_NUM(t):
     r'\d+'

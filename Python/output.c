@@ -1,10 +1,10 @@
 #include <stdio.h>
 
 int main() {
-    int resultado = 1;
-    for (int i = 0; i < 3; i++) {
-        resultado *= 2;
+    int x = 0;
+    while ((x < 10)) {
+        printf("%d\n", x);
+        x += 1;
     }
-    printf("%d\n", resultado);
     return 0;
 }

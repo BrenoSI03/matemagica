@@ -39,17 +39,25 @@ def p_atribuicao(p):
 
 def p_impressao(p):
     '''impressao : MOSTRE expressao_arit PONTO'''
-    expr_str = p[2]  # p[2] já é a expressão como string
-    p[0] = f"    printf(\"%d\\n\", {expr_str});"  # Apenas imprime a expressão sem "True"
+    expr_str = p[2]
+    p[0] = f"    printf(\"%d\\n\", {expr_str});"
 
+# Repetição contada (já existente)
 def p_repeticao(p):
-    'repeticao : REPITA NUM VEZES DOIS_PONTOS cmds FIM'
-    cmds = '\n    '.join(p[5])
-    p[0] = f"    for (int i = 0; i < {p[2]}; i++) {{\n    {cmds}\n    }}"
+    '''repeticao : REPITA NUM VEZES DOIS_PONTOS cmds FIM
+                 | REPITA ENQUANTO expressao_logica DOIS_PONTOS cmds FIM'''
+    if p[2] == 'ENQUANTO':
+        # Caso do while
+        cmds = '\n    '.join(p[5])
+        p[0] = f"    while ({p[3]}) {{\n    {cmds}\n    }}"
+    else:
+        # Caso do for
+        cmds = '\n    '.join(p[5])
+        p[0] = f"    for (int i = 0; i < {p[2]}; i++) {{\n    {cmds}\n    }}"
 
 def p_se(p):
-    '''se : SE expressao_arit ENTAO cmds FIM
-          | SE expressao_arit ENTAO cmds SENAO cmds FIM'''
+    '''se : SE expressao_logica ENTAO cmds FIM
+          | SE expressao_logica ENTAO cmds SENAO cmds FIM'''
     if len(p) == 6:
         cmds_entao = '\n    '.join(p[4])
         p[0] = f"    if ({p[2]}) {{\n    {cmds_entao}\n    }}"
@@ -75,23 +83,35 @@ def p_subtracao(p):
 
 def p_adicao(p):
     '''adicao : SOME VAR COM VAR PONTO
-            | SOME VAR COM NUM PONTO'''
+              | SOME VAR COM NUM PONTO'''
     p[0] = f"    {p[2]} += {p[4]};"
 
-
-# Regra para expressões aritméticas binárias
+# Expressões Aritméticas
 def p_expressao_arit_binaria(p):
     '''expressao_arit : expressao_arit PLUS expressao_arit
                       | expressao_arit MINUS expressao_arit
                       | expressao_arit TIMES expressao_arit
                       | expressao_arit DIVIDE expressao_arit'''
-    expr_str = f"({p[1]} {p[2]} {p[3]})"  # Não retornamos mais a tupla com "True"
-    p[0] = expr_str  # Agora retorna a expressão como string, sem a tupla (expressao, True)
+    p[0] = f"({p[1]} {p[2]} {p[3]})"
 
 def p_expressao_arit_basica(p):
     '''expressao_arit : NUM
                       | VAR'''
-    p[0] = str(p[1])  # Apenas retorna o número ou variável como string, sem a tupla
+    p[0] = str(p[1])
+
+# Expressões Lógicas (comparações)
+def p_expressao_logica_binaria(p):
+    '''expressao_logica : expressao_arit GT expressao_arit
+                        | expressao_arit LT expressao_arit
+                        | expressao_arit EQ expressao_arit
+                        | expressao_arit GTE expressao_arit
+                        | expressao_arit LTE expressao_arit'''
+    p[0] = f"({p[1]} {p[2]} {p[3]})"
+
+# Permitir usar apenas uma expressão aritmética como condição (não obrigatório, mas comum)
+def p_expressao_logica_arit(p):
+    'expressao_logica : expressao_arit'
+    p[0] = p[1]
 
 def p_error(p):
     if p:
