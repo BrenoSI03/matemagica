@@ -37,12 +37,18 @@ def p_atribuicao(p):
     '''atribuicao : FACA VAR SER NUM PONTO
                   | FACA VAR SER VAR PONTO
                   | FACA VAR SER expressao_arit PONTO'''
-    p[0] = f"    {p[2]} = {p[4]};"
+    p[0] = f"    int {p[2]} = {p[4]};"
 
 def p_impressao(p):
     '''impressao : MOSTRE expressao_arit PONTO'''
-    # Agora, p[2] pode ser algo como (2 + a), (a * 3), etc.
-    p[0] = f"    printf(\"%d\\n\", {p[2]});"
+    expr_str, is_simple = p[2]
+    if is_simple:
+        # Valor único, usar %d
+        p[0] = f"    printf(\"%d\\n\", {expr_str});"
+    else:
+        # Expressão complexa, usar %s e a expressão entre aspas
+        # Como expr_str já é algo como (a + b), basta colocar entre aspas no printf
+        p[0] = f"    printf(\"%s\\n\", \"{expr_str}\");"
 
 def p_repeticao(p):
     'repeticao : REPITA NUM VEZES DOIS_PONTOS cmds FIM'
@@ -83,13 +89,16 @@ def p_expressao_arit_binaria(p):
                       | expressao_arit MINUS expressao_arit
                       | expressao_arit TIMES expressao_arit
                       | expressao_arit DIVIDE expressao_arit'''
-    # Constrói a expressão em C
-    p[0] = f"({p[1]} {p[2]} {p[3]})"
+    # Aqui p[1] e p[3] são tuplas (expr_str, is_simple)
+    expr_str = f"({p[1][0]} {p[2]} {p[3][0]})"
+    # Agora é sempre complexo (False)
+    p[0] = (expr_str, False)
 
 def p_expressao_arit_basica(p):
     '''expressao_arit : NUM
                       | VAR'''
-    p[0] = str(p[1])
+    # Para um número ou uma variável sozinha, é simples.
+    p[0] = (str(p[1]), True)
 
 def p_error(p):
     if p:

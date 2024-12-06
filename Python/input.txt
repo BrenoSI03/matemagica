@@ -1,1 +1,4 @@
-MOSTRE 2 + 2 .
+FACA a SER 10.
+MOSTRE a .
+MOSTRE a + 5 .
+MOSTRE 2 * 3 .
