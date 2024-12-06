@@ -14,7 +14,9 @@ reserved = {
     'POR': 'POR',
     'DIVIDA': 'DIVIDA',
     'SUBTRAIA': 'SUBTRAIA',
-    'ENQUANTO': 'ENQUANTO'
+    'ENQUANTO': 'ENQUANTO',
+    'SOME': 'SOME',
+    'COM': 'COM',
 }
 
 tokens = [

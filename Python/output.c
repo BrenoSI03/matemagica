@@ -1,9 +1,10 @@
 #include <stdio.h>
 
 int main() {
-    a = 10;
-    printf("%d\n", a);
-    printf("%s\n", "(a + 5)");
-    printf("%s\n", "(2 * 3)");
+    int resultado = 1;
+    for (int i = 0; i < 3; i++) {
+        resultado *= 2;
+    }
+    printf("%d\n", resultado);
     return 0;
 }

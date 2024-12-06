@@ -8,7 +8,7 @@ def gerar_codigo_c(input_code):
         result = parser.parse(input_code)
         
         # Cria o arquivo output.c e escreve o código gerado
-        with open("Python/output.c", "w") as output_file:
+        with open("output.c", "w") as output_file:
             output_file.write(result)
         
         print("Arquivo output.c gerado com sucesso!")
@@ -19,7 +19,7 @@ def gerar_codigo_c(input_code):
 def ler_entrada():
     try:
         # Lê o conteúdo do arquivo input.txt
-        with open("Python/input.txt", "r") as input_file:
+        with open("input.txt", "r") as input_file:
             input_code = input_file.read()
         return input_code
     except FileNotFoundError:
