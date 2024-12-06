@@ -1,10 +1,6 @@
 #include <stdio.h>
 
 int main() {
-    int d = 0;
-    while (d < 100) {
-        printf("%d\n", d);
-        d += 5;
-    }
+    printf("%d\n", (2 + 2));
     return 0;
 }

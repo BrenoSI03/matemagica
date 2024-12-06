@@ -1,5 +1,1 @@
-FACA d SER 0.
-REPITA ENQUANTO d < 100:
-    MOSTRE d.
-    SOME d COM 5.
-FIM
+MOSTRE 2 + 2 .
